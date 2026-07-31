@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Wallpaper Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --glass-bg: rgba(20, 25, 40, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --gradient-merge: linear-gradient(135deg, #ec4899, #8b5cf6);
+      --gradient-merge-hover: linear-gradient(135deg, #db2777, #7c3aed);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    .header { text-align: center; margin-bottom: 30px; }
+    
+    h2 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 5px;
+      background: linear-gradient(to right, #fff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    p { color: var(--text-muted); font-size: 1rem; margin-top: 0; }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 35px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: '▼';
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    select {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: inherit;
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+    select option { background: #1e293b; color: #fff; padding: 10px; }
+
+    input[type="file"] { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn-merge {
+      background: var(--gradient-merge);
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.5);
+    }
+    .btn-merge:hover {
+      background: var(--gradient-merge-hover);
+      box-shadow: 0 15px 35px -5px rgba(236, 72, 153, 0.6);
+    }
+
+    .btn-save {
+      background: var(--primary);
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+      margin-top: 10px;
+    }
+    .btn-save:hover { background: var(--primary-hover); }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      margin: 10px 0;
+    }
+
+    .canvas-container {
+      margin-top: 40px;
+      position: relative;
+      display: none;
+      animation: fadeIn 1s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    canvas {
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.1);
+      max-width: 100%;
+      height: auto;
+      max-height: 70vh;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      object-fit: contain;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 100;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>✨ Meisterwerk Studio</h2>
+    <p>Premium Wallpaper Generator</p>
+  </div>
+
+  <div class="glass-panel">
+    <div class="select-wrapper">
+      <select id="styleSelect">
+        <option value="1">1. Fantasie-Geometrie</option>
+        <option value="2">2. Mittelalterliches Glas</option>
+        <option value="3">3. Abstrakte Puppen</option>
+        <option value="4">4. Kosmische Galaxie</option>
+        <option value="5">5. Antike Bronzezeit</option>
+        <option value="6">6. Architektonische Blöcke</option>
+        <option value="7">7. Arkane Magie</option>
+        <option value="8">8. Cyber-Matrix</option>
+        <option value="9">9. Gedankenstrom</option>
+        <option value="10">10. Purer Glanz</option>
+      </select>
+    </div>
+
+    <label class="btn" for="imageInput" id="labelSingle">
+      <span>🖼️</span> 1 Foto auswählen
+    </label>
+    <input type="file" id="imageInput" accept="image/*">
+
+    <div class="divider"></div>
+
+    <label class="btn btn-merge" for="mergeInput" id="labelMerge">
+      <span>🎨</span> 2 Fotos mischen (Kindlich)
+    </label>
+    <input type="file" id="mergeInput" accept="image/*" multiple>
+
+    <button class="btn btn-save" id="saveBtn" style="display: none;">
+      <span>💾</span> In HD Herunterladen
+    </button>
+  </div>
+
+  <div class="canvas-container" id="canvasWrapper">
+    <canvas id="canvas" width="1080" height="1920"></canvas>
+  </div>
+
+  <div id="toast">Nachricht hier</div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const mergeInput = document.getElementById('mergeInput');
+    const styleSelect = document.getElementById('styleSelect');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const saveBtn = document.getElementById('saveBtn');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const toastEl = document.getElementById('toast');
+    const labelSingle = document.getElementById('labelSingle');
+    const labelMerge = document.getElementById('labelMerge');
+
+    let currentColors = [];
+
+    function setupHighDPICanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const logicalWidth = 1080;
+      const logicalHeight = 1920;
+      canvas.width = logicalWidth * dpr;
+      canvas.height = logicalHeight * dpr;
+      ctx.scale(dpr, dpr);
+      return { w: logicalWidth, h: logicalHeight };
+    }
+
+    function showToast(msg) {
+      toastEl.innerText = msg;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 3000);
+    }
+
+    function extractPalette(img) {
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = 16; tempCanvas.height = 16;
+      tempCtx.drawImage(img, 0, 0, 16, 16);
+      const imgData = tempCtx.getImageData(0, 0, 16, 16).data;
+      const colors = [];
+      for (let i = 0; i < imgData.length; i += 16) {
+        if(imgData[i+3] > 100) { 
+          colors.push({r: imgData[i], g: imgData[i+1], b: imgData[i+2]});
+        }
+      }
+      return colors;
+    }
+
+    function applyPostProcessing(w, h) {
+      const gradient = ctx.createRadialGradient(w/2, h/2, w*0.4, w/2, h/2, w*0.9);
+      gradient.addColorStop(0, 'rgba(0,0,0,0)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.globalCompositeOperation = 'overlay';
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      for(let i=0; i<w; i+=4) {
+        for(let j=0; j<h; j+=4) {
+          if(Math.random() > 0.5) ctx.fillRect(i, j, 2, 2);
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over'; 
+    }
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      labelSingle.innerHTML = "⏳ Verarbeite...";
+      const img = new Image();
+      img.onload = () => {
+        currentColors = extractPalette(img);
+        renderArt();
+        canvasWrapper.style.display = 'block';
+        saveBtn.style.display = 'inline-flex';
+        labelSingle.innerHTML = "<span>🖼️</span> 1 Foto auswählen";
+        showToast("Kunstwerk erstellt!");
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    mergeInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files.length < 2) {
+        showToast("⚠️ Bitte wählen Sie genau 2 Bilder aus!");
+        return;
+      }
+      labelMerge.innerHTML = "⏳ Verarbeite...";
+      let img1 = new Image(); let img2 = new Image();
+      let loaded = 0;
+      const onBothLoaded = () => {
+        loaded++;
+        if (loaded === 2) {
+          const colors1 = extractPalette(img1);
+          const colors2 = extractPalette(img2);
+          renderPremiumSmudge(colors1, colors2);
+          canvasWrapper.style.display = 'block';
+          saveBtn.style.display = 'inline-flex';
+          labelMerge.innerHTML = "<span>🎨</span> 2 Fotos mischen";
+          showToast("Meisterhaft gemischt!");
+        }
+      };
+      img1.onload = onBothLoaded; img2.onload = onBothLoaded;
+      img1.src = URL.createObjectURL(files[0]); img2.src = URL.createObjectURL(files[1]);
+    });
+
+    styleSelect.addEventListener('change', () => {
+      if(currentColors.length > 0) renderArt();
+    });
+
+    function renderPremiumSmudge(colors1, colors2) {
+      const dims = setupHighDPICanvas();
+      const w = dims.w; const h = dims.h;
+      ctx.clearRect(0, 0, w, h);
+
+      const bg = ctx.createLinearGradient(0, 0, w, h);
+      bg.addColorStop(0, `rgb(${colors1[0].r/2}, ${colors1[0].g/2}, ${colors1[0].b/2})`);
+      bg.addColorStop(1, `rgb(${colors2[0].r/2}, ${colors2[0].g/2}, ${colors2[0].b/2})`);
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.globalCompositeOperation = 'screen';
+      
+      for (let i = 0; i < 150; i++) {
+        const isFromImg1 = Math.random() > 0.5;
+        const cList = isFromImg1 ? colors1 : colors2;
+        const c = cList[Math.floor(Math.random() * cList.length)];
+        ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.15)`;
+        ctx.shadowColor = `rgba(${c.r}, ${c.g}, ${c.b}, 0.5)`; ctx.shadowBlur = 30;
+        ctx.beginPath();
+        let startX = isFromImg1 ? Math.random()*(w*0.8) - 100 : Math.random()*(w*0.8) + (w*0.2);
+        let startY = isFromImg1 ? Math.random()*(h*0.7) - 100 : Math.random()*(h*0.7) + (h*0.3);
+        let size = 50 + Math.random() * 200;
+        ctx.ellipse(startX, startY, size, size * (0.5 + Math.random()), Math.random()*Math.PI, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.globalCompositeOperation = 'color-dodge';
+      ctx.shadowBlur = 10;
+      for (let i = 0; i < 60; i++) {
+        const isFromImg1 = Math.random() > 0.5;
+        const cList = isFromImg1 ? colors1 : colors2;
+        const c = cList[Math.floor(Math.random() * cList.length)];
+        ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.4)`;
+        ctx.lineWidth = 10 + Math.random() * 40;
+        ctx.beginPath();
+        let sx = isFromImg1 ? Math.random()*(w*0.4) : w - Math.random()*(w*0.4);
+        let sy = isFromImg1 ? Math.random()*(h*0.4) : h - Math.random()*(h*0.4);
+        ctx.moveTo(sx, sy);
+        ctx.bezierCurveTo(w/2 + (Math.random()*600-300), h/2 + (Math.random()*600-300), w/2 + (Math.random()*600-300), h/2 + (Math.random()*600-300), w/2, h/2);
+        ctx.stroke();
+      }
+
+      ctx.globalCompositeOperation = 'lighter';
+      for(let i=0; i<100; i++) {
+        const cList = Math.random() > 0.5 ? colors1 : colors2;
+        const c = cList[Math.floor(Math.random() * cList.length)];
+        ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.8)`;
+        ctx.shadowBlur = 15;
+        ctx.beginPath(); ctx.arc(Math.random()*w, Math.random()*h, Math.random()*4, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.shadowBlur = 0; 
+      applyPostProcessing(w, h);
+    }
+
+    function renderArt() {
+      const styleType = styleSelect.value;
+      const dims = setupHighDPICanvas();
+      const w = dims.w; const h = dims.h;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowBlur = 0;
+
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, `rgb(${currentColors[0].r}, ${currentColors[0].g}, ${currentColors[0].b})`);
+      grad.addColorStop(1, `rgb(${currentColors[2%currentColors.length].r}, ${currentColors[2%currentColors.length].g}, ${currentColors[2%currentColors.length].b})`);
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+      
+      switch(styleType) {
+        case "1": // Fantasie-Geometrie
+          ctx.globalCompositeOperation = 'overlay';
+          for (let i = 0; i < 30; i++) {
+            const c = currentColors[i % currentColors.length];
+            ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.4)`;
+            ctx.strokeStyle = `rgba(255,255,255,0.6)`;
+            ctx.shadowColor = `rgb(${c.r}, ${c.g}, ${c.b})`; ctx.shadowBlur = 20;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for(let j=0; j<4; j++) ctx.lineTo(Math.random()*w, Math.random()*h);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+          }
+          break;
+          
+        case "2": // Mittelalterliches Glas (زجاج العصور الوسطى)
+          ctx.globalCompositeOperation = 'source-over';
+          for (let i = 0; i < 60; i++) {
+            const c = currentColors[i % currentColors.length];
+            ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.85)`;
+            ctx.strokeStyle = "#0f172a"; 
+            ctx.lineWidth = 14;
+            ctx.beginPath();
+            let sx = Math.random()*w; let sy = Math.random()*h;
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(sx + (Math.random()*500 - 250), sy + (Math.random()*500 - 250));
+            ctx.lineTo(sx + (Math.random()*500 - 250), sy + (Math.random()*500 - 250));
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+          }
+          break;
+
+        case "3": // Abstrakte Puppen (الدمى التجريدية)
+          ctx.globalCompositeOperation = 'source-over';
+          for (let i = 0; i < 35; i++) {
+            const c = currentColors[i % currentColors.length];
+            const x = Math.random() * w; const y = Math.random() * h;
+            const size = 60 + Math.random() * 80;
+            ctx.fillStyle = `rgb(${c.r}, ${c.g}, ${c.b})`;
+            ctx.shadowColor = `rgba(0,0,0,0.4)`; ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.roundRect(x - size, y, size*2, size*2.5, 40); ctx.fill();
+            ctx.fillStyle = "#e2e8f0"; // Head
+            ctx.beginPath(); ctx.arc(x, y - size*0.4, size*0.85, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#0f172a"; // Eyes
+            ctx.beginPath(); ctx.arc(x - size*0.3, y - size*0.4, size*0.15, 0, Math.PI*2);
+            ctx.arc(x + size*0.3, y - size*0.4, size*0.15, 0, Math.PI*2); ctx.fill();
+          }
+          break;
+
+        case "4": // Kosmische Galaxie (المجرة الكونية)
+          ctx.fillStyle = "rgba(10, 15, 30, 0.95)"; ctx.fillRect(0,0,w,h);
+          ctx.globalCompositeOperation = 'screen';
+          for (let i = 0; i < 15; i++) {
+            const c = currentColors[i % currentColors.length];
+            ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.15)`;
+            ctx.shadowColor = `rgb(${c.r}, ${c.g}, ${c.b})`; ctx.shadowBlur = 50;
+            ctx.beginPath(); ctx.arc(Math.random()*w, Math.random()*h, 300 + Math.random()*500, 0, Math.PI*2); ctx.fill();
+          }
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.fillStyle = "#fff";
+          for (let i = 0; i < 300; i++) {
+            const r = Math.random()*3;
+            ctx.shadowBlur = r * 5;
+            ctx.beginPath(); ctx.arc(Math.random()*w, Math.random()*h, r, 0, Math.PI*2); ctx.fill();
+          }
+          break;
+
+        case "5": // Antike Bronzezeit (العصر البرونزي)
+          ctx.globalCompositeOperation = 'multiply';
+          for (let i = 0; i < 45; i++) {
+            const c = currentColors[i % currentColors.length];
+            ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.8)`;
+            ctx.strokeStyle = `rgba(212, 175, 55, 0.9)`; 
+            ctx.lineWidth = 6;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 10;
+            const x = Math.random()*w; const y = Math.random()*h;
+            const size = 150 + Math.random()*100;
+            ctx.beginPath();
+            ctx.moveTo(x, y - size); ctx.lineTo(x + size, y);
+            ctx.lineTo(x, y + size); ctx.lineTo(x - size, y);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+          }
+          break;
+
+        case "6": // Architektonische Blöcke (المكعبات المعمارية)
+          const gridSize = 150;
+          ctx.globalCompositeOperation = 'source-over';
+          for(let x=-50; x<w+50; x+=gridSize) {
+            for(let y=-50; y<h+50; y+=gridSize) {
+              const c = currentColors[Math.floor(Math.random()*currentColors.length)];
+              ctx.fillStyle = `rgb(${c.r}, ${c.g}, ${c.b})`;
+              ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10;
+              ctx.fillRect(x, y, gridSize-5, gridSize-5);
+              ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, y, gridSize-5, 15);
+              ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(x, y+gridSize-20, gridSize-5, 15);
+            }
+          }
+          break;
+
+        case "7": // Arkane Magie (السحر الغامض)
+          ctx.globalCompositeOperation = 'screen';
+          for (let i = 0; i < 25; i++) {
+            const c = currentColors[i % currentColors.length];
+            ctx.save();
+            ctx.translate(Math.random()*w, Math.random()*h);
+            ctx.rotate(Math.random() * Math.PI);
+            ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.1)`;
+            ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 0.8)`;
+            ctx.lineWidth = 8;
+            ctx.shadowColor = `rgb(${c.r}, ${c.g}, ${c.b})`; ctx.shadowBlur = 30;
+            ctx.strokeRect(-150, -200, 300, 400); 
+            ctx.fillRect(-150, -200, 300, 400);
+            ctx.beginPath(); ctx.arc(0, 0, 100, 0, Math.PI*2); ctx.stroke();
+            ctx.restore();
+          }
+          break;
+
+        case "8": // Cyber-Matrix 
+          ctx.fillStyle = "rgba(5, 10, 20, 0.9)"; ctx.fillRect(0,0,w,h);
+          ctx.globalCompositeOperation = 'screen';
+          const nodes = [];
+          for(let i=0; i<60; i++) nodes.push({x: Math.random()*w, y: Math.random()*h});
+          nodes.forEach(n1 => {
+            nodes.forEach(n2 => {
+              const dist = Math.hypot(n1.x-n2.x, n1.y-n2.y);
+              if(dist < 200) {
+                const c = currentColors[Math.floor(Math.random()*currentColors.length)];
+                ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${1 - dist/200})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
+              }
+            });
+            ctx.fillStyle = "#fff";
+            ctx.shadowColor = "#fff"; ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.arc(n1.x, n1.y, 4, 0, Math.PI*2); ctx.fill();
+          });
+          break;
+
+        case "9": // Gedankenstrom (تيار الأفكار)
+          ctx.globalCompositeOperation = 'overlay';
+          for(let i=0; i<25; i++) {
+            const c = currentColors[i % currentColors.length];
+            const grad2 = ctx.createLinearGradient(0, 0, w, 0);
+            grad2.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0.8)`);
+            grad2.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+            ctx.fillStyle = grad2;
+            ctx.beginPath();
+            let startY = Math.random()*h;
+            ctx.moveTo(0, startY);
+            ctx.bezierCurveTo(w*0.3, startY - 300, w*0.6, startY + 300, w, Math.random()*h);
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+          }
+          break;
+
+        case "10": // Purer Glanz 
+          ctx.globalCompositeOperation = 'color-dodge';
+          for (let i = 0; i < 12; i++) {
+            const c = currentColors[i % currentColors.length];
+            const cx = Math.random()*w; const cy = Math.random()*h;
+            const size = 400 + Math.random()*500;
+            const rgrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size);
+            rgrad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0.8)`);
+            rgrad.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = rgrad;
+            ctx.beginPath(); ctx.arc(cx, cy, size, 0, Math.PI*2); ctx.fill();
+          }
+          break;
+      }
+
+      ctx.shadowBlur = 0;
+      applyPostProcessing(w, h);
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'meisterwerk_premium.png';
+      link.href = canvas.toDataURL("image/png", 1.0);
+      link.click();
+      showToast("Download gestartet! 💾");
+    });
+  </script>
+</body>
+</html>
